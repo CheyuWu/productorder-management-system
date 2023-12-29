@@ -1,11 +1,22 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+import os
 
-# For development
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:mysecretpass@localhost:5432/postgres"
+from sqlmodel import SQLModel, Session, create_engine
+# from sqlalchemy.ext.asyncio import create_async_engine
+# from sqlmodel.ext.asyncio.session import AsyncSession
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    # For development
+    "postgresql://dev:password@localhost:5432/app"
+)
 
-Base = declarative_base()
+engine = create_engine(DATABASE_URL, echo=True)
+
+
+def init_db():
+    SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session
