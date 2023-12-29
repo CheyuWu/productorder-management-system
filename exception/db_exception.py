@@ -1,0 +1,6 @@
+
+
+
+
+class DatabaseUrlNotFound(BaseException):
+    pass

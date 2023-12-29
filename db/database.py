@@ -1,22 +1,25 @@
-import os
+from sqlmodel import SQLModel
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
+from core import get_settings
+from exception.db_exception import DatabaseUrlNotFound
 
-from sqlmodel import SQLModel, Session, create_engine
-# from sqlalchemy.ext.asyncio import create_async_engine
-# from sqlmodel.ext.asyncio.session import AsyncSession
+DATABASE_URL = get_settings().database_url
 
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    # For development
-    "postgresql://dev:password@localhost:5432/app"
-)
+if not DATABASE_URL:
+    raise DatabaseUrlNotFound
 
-engine = create_engine(DATABASE_URL, echo=True)
-
-
-def init_db():
-    SQLModel.metadata.create_all(engine)
+engine = create_async_engine(DATABASE_URL, echo=True)
 
 
-def get_session():
-    with Session(engine) as session:
+async def init_db():
+    async with engine.begin() as conn:
+        # await conn.run_sync(SQLModel.metadata.drop_all)
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+
+async def get_session():
+    # expire_on_commit - don't expire objects after transaction commit
+    async_session = async_sessionmaker(engine, expire_on_commit=False)
+    async with async_session() as session:
         yield session

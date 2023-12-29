@@ -7,3 +7,4 @@ passlib
 alembic
 asyncpg
 sqlmodel
+pydantic-settings

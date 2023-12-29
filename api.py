@@ -1,19 +1,18 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-
-from db.database import init_db
+from db.database import init_db, engine
 
 # from routes import login, orders, product
-
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     """
     Startup and Shutdown event
     """
-    init_db()
+    await init_db()
     yield
+    await engine.dispose()
 
 
 app = FastAPI(lifespan=lifespan)
