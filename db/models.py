@@ -1,71 +1,47 @@
-import enum
-from datetime import datetime
-from typing import List
-from sqlmodel import SQLModel, Field, Relationship, func
-from passlib.hash import bcrypt
+from typing import List, Optional
+from sqlmodel import Field, Relationship
+from schemas.order_products import OrderProductBase
+from schemas.orders import OrderBase
+from schemas.products import ProductBase
+from schemas.users import UserBase
+from uuid import UUID, uuid4
 
 
-class UserRole(enum.Enum):
-    MANAGER = "Manager"
-    CUSTOMER = "Customer"
-
-
-class User(SQLModel, table=True):
-    user_id: int = Field(primary_key=True, index=True)
-    username: str = Field(unique=True, nullable=False)
-    hashed_password: str = Field(nullable=False)
-    role: UserRole = Field(nullable=False)
-
-    def __init__(self, username: str, password: str, role: UserRole):
-        self.username = username
-        self.password = bcrypt.hash(password)
-        self.role = role
-
-    created_products: List["Product"] = Relationship(
+class User(UserBase, table=True):
+    user_id: int = Field(default=None, primary_key=True, index=True)
+    password: str
+    created_products: Optional[List["Product"]] = Relationship(
         back_populates="creator", sa_relationship_kwargs={"lazy": "selectin"}
     )
-    orders: List["Order"] = Relationship(
+    orders_list: Optional[List["Order"]] = Relationship(
         back_populates="customer", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 
-class Product(SQLModel, table=True):
+class Product(ProductBase, table=True):
     product_id: int = Field(primary_key=True, index=True)
-    name: str = Field(nullable=False)
-    price: float = Field(nullable=False)
-    stock: int = Field(nullable=False)
-    created_by: int = Field(foreign_key="user.user_id", nullable=False)
-
     creator: User = Relationship(
         back_populates="created_products", sa_relationship_kwargs={"lazy": "selectin"}
     )
-    ordered_in: List["OrderProduct"] = Relationship(
-        back_populates="product", sa_relationship_kwargs={"lazy": "selectin"}
+    order_product_list: Optional[List["OrderProduct"]] = Relationship(
+        back_populates="product_list", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 
-class Order(SQLModel, table=True):
-    order_id: int = Field(primary_key=True, index=True)
-    customer_id: int = Field(foreign_key="user.user_id", nullable=False)
-    order_date: datetime = Field(default=func.now)
-    total_price: float = Field(nullable=False)
-
+class Order(OrderBase, table=True):
+    order_id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     customer: User = Relationship(
-        back_populates="orders", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="orders_list", sa_relationship_kwargs={"lazy": "selectin"}
     )
     order_products: List["OrderProduct"] = Relationship(
-        back_populates="order", sa_relationship_kwargs={"lazy": "selectin"}
+        back_populates="order_list", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 
-class OrderProduct(SQLModel, table=True):
-    order_id: int = Field(foreign_key="order.order_id", primary_key=True)
-    product_id: int = Field(foreign_key="product.product_id", primary_key=True)
-    quantity: int = Field(nullable=False)
-
-    order: Order = Relationship(
+class OrderProduct(OrderProductBase, table=True):
+    order_list: Order = Relationship(
         back_populates="order_products", sa_relationship_kwargs={"lazy": "selectin"}
     )
-    product: Product = Relationship(
-        back_populates="orders", sa_relationship_kwargs={"lazy": "selectin"}
+    product_list: Product = Relationship(
+        back_populates="order_product_list", sa_relationship_kwargs={"lazy": "selectin"}
     )

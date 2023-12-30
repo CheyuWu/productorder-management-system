@@ -1,16 +1,15 @@
-from pydantic import BaseModel
-
-from db.models import UserRole
-
+import enum
+from sqlmodel import Field, SQLModel
 
 
-class UserCreate(BaseModel):
-    username: str
+class UserRole(enum.Enum):
+    MANAGER = "Manager"
+    CUSTOMER = "Customer"
+
+class UserBase(SQLModel):
+    username: str = Field(unique=True, nullable=False)
     role: UserRole
 
+class UserCreate(UserBase):
+    password: str
 
-class User(UserCreate):
-    user_id: int
-
-    class Config:
-        orm_mode = True

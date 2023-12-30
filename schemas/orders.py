@@ -1,20 +1,8 @@
-from typing import List
-from pydantic import BaseModel
+from datetime import datetime
+from sqlalchemy import func
+from sqlmodel import Field, SQLModel
 
-class OrderProductCreate(BaseModel):
-    product_id: int
-    quantity: int
-
-
-class OrderCreate(BaseModel):
-    customer_id: int
-    total_price: int
-    order_products: List[OrderProductCreate]
-
-
-class Order(OrderCreate):
-    order_id: int
-    order_date: str
-
-    class Config:
-        orm_mode = True
+class OrderBase(SQLModel):
+    customer_id: int = Field(foreign_key="user.user_id", nullable=False)
+    order_date: datetime = Field(default=func.now)
+    total_price: float

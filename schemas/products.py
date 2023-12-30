@@ -1,15 +1,11 @@
-from pydantic import BaseModel
+from sqlmodel import Field, SQLModel
 
 
-class ProductCreate(BaseModel):
-    name: str
-    price: int
+class ProductBase(SQLModel):
+    name: str = Field(nullable=False, unique=True)
+    price: float
     stock: int
+    creator_id: int = Field(foreign_key="user.user_id", nullable=False)
 
-
-class Product(ProductCreate):
-    product_id: int
-    created_by: int
-
-    class Config:
-        orm_mode = True
+class ProductCreate(ProductBase):
+    pass

@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.ext.asyncio import async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 from core import get_settings
 from exception.db_exception import DatabaseUrlNotFound
 
@@ -11,6 +11,12 @@ if not DATABASE_URL:
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 
+# SessionLocal = async_sessionmaker(
+#     expire_on_commit=False,
+#     class_=AsyncSession,
+#     bind=engine,
+# )
+
 
 async def init_db():
     async with engine.begin() as conn:
@@ -20,6 +26,10 @@ async def init_db():
 
 async def get_session():
     # expire_on_commit - don't expire objects after transaction commit
-    async_session = async_sessionmaker(engine, expire_on_commit=False)
+    async_session = async_sessionmaker(
+        engine,
+        expire_on_commit=False,
+        class_=AsyncSession,
+    )
     async with async_session() as session:
         yield session
