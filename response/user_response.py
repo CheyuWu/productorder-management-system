@@ -1,7 +1,7 @@
 from typing import Dict, Union
 from fastapi import status
 
-create_user_response: Dict[Union[int, str], Dict[str, str]] = {
+response_base: Dict[Union[int, str], Dict[str, str]] = {
     status.HTTP_400_BAD_REQUEST: {
         "description": "You missed some parameters or paramters was not corrected"
     },
@@ -10,3 +10,7 @@ create_user_response: Dict[Union[int, str], Dict[str, str]] = {
     },
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Unknown error"},
 }
+
+
+create_user_response = {**response_base}
+delete_user_response = {**response_base}

@@ -1,7 +1,6 @@
 import enum
 from sqlmodel import Field, SQLModel
 
-
 class UserRole(enum.Enum):
     MANAGER = "Manager"
     CUSTOMER = "Customer"
@@ -13,3 +12,5 @@ class UserBase(SQLModel):
 class UserCreate(UserBase):
     password: str
 
+class UserDelete(SQLModel):
+    username: str
