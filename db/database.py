@@ -1,21 +1,16 @@
 from sqlmodel import SQLModel
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, create_async_engine
 from core import get_settings
 from exception.db_exception import DatabaseUrlNotFound
 
 DATABASE_URL = get_settings().database_url
+DEBUG = get_settings().debug
+
 
 if not DATABASE_URL:
     raise DatabaseUrlNotFound
 
-engine = create_async_engine(DATABASE_URL, echo=True)
-
-# SessionLocal = async_sessionmaker(
-#     expire_on_commit=False,
-#     class_=AsyncSession,
-#     bind=engine,
-# )
+engine = create_async_engine(DATABASE_URL, echo=DEBUG, future=True)
 
 
 async def init_db():

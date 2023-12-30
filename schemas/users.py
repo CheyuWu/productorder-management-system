@@ -12,5 +12,8 @@ class UserBase(SQLModel):
 class UserCreate(UserBase):
     password: str
 
+class UserCreateResponse(UserBase):
+    user_id: int
+
 class UserDelete(SQLModel):
     username: str

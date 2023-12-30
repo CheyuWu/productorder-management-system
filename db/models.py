@@ -19,8 +19,8 @@ class User(UserBase, table=True):
 
 
 class Product(ProductBase, table=True):
-    product_id: int = Field(primary_key=True, index=True)
-    creator: User = Relationship(
+    product_id: int = Field(default=None, primary_key=True, index=True)
+    creator: Optional[User] = Relationship(
         back_populates="created_products", sa_relationship_kwargs={"lazy": "selectin"}
     )
     order_product_list: Optional[List["OrderProduct"]] = Relationship(

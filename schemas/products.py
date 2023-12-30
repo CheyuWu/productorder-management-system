@@ -9,3 +9,9 @@ class ProductBase(SQLModel):
 
 class ProductCreate(ProductBase):
     pass
+
+class ProductList(ProductBase):
+    product_id: int
+
+class ProductUpdate(ProductBase):
+    pass
