@@ -1,3 +1,4 @@
+from sqlalchemy import delete, update
 from sqlmodel import col, select
 from db.models import Product
 from schemas.products import ProductCreate, ProductUpdate
@@ -29,10 +30,8 @@ async def create_product(product: ProductCreate, db: AsyncSession):
 async def modify_product(
     product_id: int, product_update: ProductUpdate, db: AsyncSession
 ):
-    db_product = db.get(Product, product_id)
-
-    if not db_product:
-        raise Exception
+    delete_statement = select(Product).where(col(Product.product_id) == product_id)
+    db_product = (await db.execute(delete_statement)).scalars().one()
 
     product_data = product_update.model_dump(exclude_unset=True)
     for key, value in product_data.items():
@@ -44,10 +43,9 @@ async def modify_product(
 
 
 async def delete_product(product_id: int, db: AsyncSession):
-    db_product = db.get(Product, product_id)
+    delete_statement = select(Product).where(col(Product.product_id) == product_id)
+    (await db.execute(delete_statement)).one()
 
-    if not db_product:
-        raise Exception
-
-    await db.delete(db_product)
+    delete_statement = delete(Product).where(col(Product.product_id) == product_id)
+    await db.execute(delete_statement)
     await db.commit()

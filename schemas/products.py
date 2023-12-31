@@ -9,7 +9,10 @@ class ProductBase(SQLModel):
 
 class ProductCreate(ProductBase):
     pass
-
+    
+class ProductCreateResponse(ProductBase):
+    product_id: int
+    
 class ProductList(ProductBase):
     product_id: int
 

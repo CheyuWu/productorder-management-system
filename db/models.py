@@ -1,7 +1,6 @@
 from typing import List, Optional
 from sqlmodel import Field, Relationship
-from schemas.order_products import OrderProductBase
-from schemas.orders import OrderBase
+from schemas.orders import OrderBase, OrderProductBase
 from schemas.products import ProductBase
 from schemas.users import UserBase
 from uuid import UUID, uuid4
@@ -39,6 +38,7 @@ class Order(OrderBase, table=True):
 
 
 class OrderProduct(OrderProductBase, table=True):
+    order_id: UUID = Field(foreign_key="order.order_id", primary_key=True)
     order_list: Order = Relationship(
         back_populates="order_products", sa_relationship_kwargs={"lazy": "selectin"}
     )

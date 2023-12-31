@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlmodel import select, delete
+from sqlmodel import col, select, delete
 from db.models import User
 from schemas.users import UserCreate
 from passlib.hash import bcrypt
@@ -15,8 +15,8 @@ async def create_user(user: UserCreate, db: AsyncSession):
 
 
 async def delete_user(user_id: int, db: AsyncSession):
-    select_statement = select(User).where(user_id == User.user_id)
+    select_statement = select(User).where(col(User.user_id) == user_id)
     (await db.execute(select_statement)).one()
-    delete_statement = delete(User).where(user_id == User.user_id)  # type: ignore
+    delete_statement = delete(User).where(col(User.user_id) == user_id)
     await db.execute(delete_statement)
     await db.commit()

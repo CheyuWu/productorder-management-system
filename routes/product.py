@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import List
 from fastapi import APIRouter, Query, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_session
@@ -9,11 +9,17 @@ from modules.product import (
     list_product_by_stock,
     modify_product,
 )
-from schemas.products import ProductCreate, ProductList, ProductUpdate
+from schemas.products import (
+    ProductCreate,
+    ProductCreateResponse,
+    ProductList,
+    ProductUpdate,
+)
 from response.product_response import (
     create_product_response,
     delete_product_response,
     modify_product_response,
+    get_product_response,
 )
 
 router = APIRouter()
@@ -24,7 +30,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Product"],
-    responses=create_product_response,
+    responses=get_product_response,
     response_model=List[ProductList],
     summary="Get product by price API",
 )
@@ -49,7 +55,7 @@ async def list_product_price_api(
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Product"],
-    responses=create_product_response,
+    responses=get_product_response,
     response_model=List[ProductList],
     summary="Get product by stock API",
 )
@@ -75,7 +81,7 @@ async def list_product_stock_api(
     include_in_schema=True,
     tags=["Product"],
     responses=create_product_response,
-    response_model=ProductCreate,
+    response_model=ProductCreateResponse,
     summary="Create product API",
 )
 async def create_product_api(
@@ -86,14 +92,14 @@ async def create_product_api(
     return result
 
 
-@router.patch(
+@router.put(
     "/product/{product_id}",
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Product"],
     responses=modify_product_response,
     response_model=ProductList,
-    summary="modify product data API",
+    summary="Modify product data API",
 )
 async def modify_product_api(
     product_id: int,
@@ -110,7 +116,7 @@ async def modify_product_api(
     status_code=status.HTTP_204_NO_CONTENT,
     include_in_schema=True,
     tags=["Product"],
-    responses=modify_product_response,
+    responses=delete_product_response,
     summary="Delete product data API",
 )
 async def delete_product_api(
