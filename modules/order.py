@@ -3,8 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from sqlmodel import col, select
 from db.models import Order, OrderProduct, Product
+from exception.api_exception import OutOfStock
 from schemas.orders import OrderProductCreate, OrderProductModel
 from sqlmodel.sql.expression import SelectOfScalar
+
 
 async def create_order(
     customer_id: int, order_product_list: List[OrderProductCreate], db: AsyncSession
@@ -25,7 +27,15 @@ async def create_order(
             product_id=order_product.product_id,
             quantity=order_product.quantity,
         )
-        order.total_price += product.price * order_product.quantity  # type: ignore
+        if product.stock < order_product.quantity:
+            await db.rollback()
+            raise OutOfStock()
+        # substract the stock
+        product.stock -= order_product.quantity
+        db.add(product)
+        # calculate total price
+        order.total_price += product.price * order_product.quantity
+
         db.add(order_product)
         db_order_products.append(order_product)
     db.add(order)
@@ -39,6 +49,13 @@ async def create_order(
     return order, db_order_products
 
 
+async def check_product_id_is_used(product_id: int, db: AsyncSession):
+    select_statement = select(OrderProduct).where(
+        col(OrderProduct.product_id) == product_id
+    )
+    return (await db.execute(select_statement)).scalar_one_or_none()
+
+
 async def list_order(customer_id: int, db: AsyncSession):
     select_statement = select(Order).where(col(Order.customer_id) == customer_id)
     return get_orders_and_order_products(select_statement, db)
@@ -48,7 +65,10 @@ async def list_all_orders(db: AsyncSession):
     select_statement = select(Order)
     return get_orders_and_order_products(select_statement, db)
 
-async def get_orders_and_order_products(select_statement:SelectOfScalar, db: AsyncSession):
+
+async def get_orders_and_order_products(
+    select_statement: SelectOfScalar[Order], db: AsyncSession
+):
     order_results = (await db.execute(select_statement)).scalars().all()
 
     return [
@@ -56,8 +76,8 @@ async def get_orders_and_order_products(select_statement:SelectOfScalar, db: Asy
             order_id=order.order_id,
             order_date=order.order_date,
             total_price=order.total_price,
-            customer_id = order.customer_id,
-            order_details = order.order_products # type:ignore
+            customer_id=order.customer_id,
+            order_details=order.order_products,  # type:ignore
         )
         for order in order_results
     ]

@@ -2,8 +2,10 @@ from typing import Annotated, List
 from fastapi import APIRouter, Body, Header, Query, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_session
+from exception.api_exception import DeleteIsNotAllowed
 from exception.login_exception import NotAuthCurrentUser, NotAuthToOps
 from modules.login import permit_current_user
+from modules.order import check_product_id_is_used
 from modules.product import (
     create_product,
     delete_product,
@@ -135,7 +137,13 @@ async def modify_product_api(
 )
 async def delete_product_api(
     product_id: int,
+    token: str = Header(description="Your bearer token"),
     db_session: AsyncSession = Depends(get_session),
 ):
+    await permit_current_user(token, db_session)
+    db_result = await check_product_id_is_used(product_id, db_session)
+    if db_result:
+        raise DeleteIsNotAllowed(detail="An order has been placed for the product.")
+
     await delete_product(product_id, db_session)
     await db_session.close()

@@ -5,7 +5,6 @@ from db.database import get_session
 from exception.login_exception import NotAuthToOps
 from modules.login import permit_current_user
 from modules.order import create_order, list_all_orders, list_order
-from modules.user import get_user_by_id
 from response.order_response import get_order_response, create_order_response
 from schemas.orders import OrderProductCreate, OrderProductModel
 from schemas.users import UserRole
@@ -55,7 +54,7 @@ async def create_order_api(
         raise NotAuthToOps()
     order, order_details = await create_order(user.user_id, order_list, db_session)
     await db_session.close()
-    
+
     return OrderProductModel(
         order_id=order.order_id,
         customer_id=order.customer_id,
