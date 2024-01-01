@@ -1,4 +1,4 @@
-from sqlalchemy import delete, update
+from sqlalchemy import delete
 from sqlmodel import col, select
 from db.models import Product
 from exception.db_exception import ProductNotFound

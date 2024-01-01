@@ -84,7 +84,7 @@ def run_migrations_online() -> None:
 
     asyncio.run(run_async_migrations())
 
-DB_URL = get_settings().database_url
+DB_URL = get_settings().DATABASE_URL
 if not DB_URL:
     raise DatabaseUrlNotFound
 config.set_main_option("sqlalchemy.url", DB_URL)

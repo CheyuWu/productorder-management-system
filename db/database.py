@@ -3,9 +3,10 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession, create_asyn
 from core import get_settings
 from exception.db_exception import DatabaseUrlNotFound
 
-DATABASE_URL = get_settings().database_url
-DEBUG = get_settings().debug
+DATABASE_URL = get_settings().DATABASE_URL
+DEBUG = get_settings().DEBUG
 
+print(DATABASE_URL)
 
 if not DATABASE_URL:
     raise DatabaseUrlNotFound

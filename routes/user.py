@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Depends
 from db.database import get_session
 from exception.db_exception import UserExists
+from modules import login
 from modules.user import create_user, delete_user
 from response.user_response import create_user_response, delete_user_response
 from schemas.users import UserCreate, UserCreateResponse
@@ -23,11 +24,13 @@ async def create_user_api(
     user: UserCreate, db_session: AsyncSession = Depends(get_session)
 ):
     try:
+        user.password = login.get_password_hash(user.password)
         result = await create_user(user, db_session)
         await db_session.close()
         return result
     except IntegrityError:
         raise UserExists()
+
 
 @router.delete(
     "/user/{user_id}",

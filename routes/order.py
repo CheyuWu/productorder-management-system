@@ -3,7 +3,7 @@ from fastapi import APIRouter, Body, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_session
 from modules.order import create_order, list_all_orders, list_order
-from modules.user import get_user
+from modules.user import get_user_by_id
 from response.order_response import get_order_response, create_order_response
 from schemas.orders import OrderProductCreate, OrderProductModel
 from schemas.users import UserRole
@@ -24,7 +24,7 @@ router = APIRouter()
 async def list_order_api(
     customer_id: int, db_session: AsyncSession = Depends(get_session)
 ):
-    User = await get_user(customer_id, db_session)
+    User = await get_user_by_id(customer_id, db_session)
     if User.role == UserRole.MANAGER:
         return await list_all_orders(db_session)
     else:
@@ -45,7 +45,7 @@ async def create_order_api(
     order_list: List[OrderProductCreate] = Body(),
     db_session: AsyncSession = Depends(get_session),
 ):
-    await get_user(customer_id, db_session)
+    await get_user_by_id(customer_id, db_session)
     order, order_details = await create_order(customer_id, order_list, db_session)
     await db_session.close()
     return OrderProductModel(

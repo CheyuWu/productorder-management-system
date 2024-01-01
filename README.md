@@ -21,3 +21,8 @@ $ alembic upgrade head
 $ alembic history # check history
 $ alembic downgrade XXXX
 ```
+
+### Generate secret key
+```
+$ openssl rand -hex 32
+```

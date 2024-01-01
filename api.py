@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from pydantic_core import ValidationError
 from db.database import init_db, engine
-from routes import order, product, user
+from routes import login, order, product, user
 
 # from routes import login, orders, product
 
@@ -44,7 +44,7 @@ async def model_validation_handler(request: Request, exc: ValidationError):
     )
 
 
-# app.include_router(login)
+app.include_router(login.router)
 app.include_router(user.router)
 app.include_router(product.router)
 app.include_router(order.router)
