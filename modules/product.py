@@ -2,7 +2,7 @@ from sqlalchemy import delete
 from sqlmodel import col, select
 from db.models import Product
 from exception.db_exception import ProductNotFound
-from schemas.products import ProductCreate, ProductUpdate
+from schemas.products import ProductToDb
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -28,7 +28,13 @@ async def get_product_by_id(product_id: int, db: AsyncSession):
     return db_product
 
 
-async def create_product(product: ProductCreate, db: AsyncSession):
+async def get_product_by_name(product_name: str, db: AsyncSession):
+    select_statement = select(Product).where(col(Product.name) == product_name)
+    db_product = (await db.execute(select_statement)).scalar_one_or_none()
+    return db_product
+
+
+async def create_product(product: ProductToDb, db: AsyncSession):
     product_to_db = Product.model_validate(product)
     db.add(product_to_db)
     await db.commit()
@@ -37,7 +43,9 @@ async def create_product(product: ProductCreate, db: AsyncSession):
 
 
 async def modify_product(
-    product_id: int, product_update: ProductUpdate, db: AsyncSession
+    product_update: ProductToDb,
+    product_id: int,
+    db: AsyncSession,
 ):
     db_product = await get_product_by_id(product_id, db)
     product_data = product_update.model_dump(exclude_unset=True)

@@ -2,13 +2,16 @@ from typing import Annotated, List
 from fastapi import APIRouter, Body, Header, Query, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_session
-from exception.api_exception import DeleteIsNotAllowed
+from db.models import Product
+from exception.api_exception import DeleteIsNotAllowed, ParametersError
+from exception.db_exception import ProductExists
 from exception.login_exception import NotAuthCurrentUser, NotAuthToOps
 from modules.login import permit_current_user
 from modules.order import check_product_id_is_used
 from modules.product import (
     create_product,
     delete_product,
+    get_product_by_name,
     list_product_by_price,
     list_product_by_stock,
     modify_product,
@@ -18,6 +21,7 @@ from schemas.products import (
     ProductCreate,
     ProductCreateResponse,
     ProductList,
+    ProductToDb,
     ProductUpdate,
 )
 from response.product_response import (
@@ -51,6 +55,8 @@ async def list_product_price_api(
     ),
     db_session: AsyncSession = Depends(get_session),
 ):
+    if min_price > max_price:
+        raise ParametersError(detail="Min price shouldn't bigger than max price")
     result = await list_product_by_price(min_price, max_price, db_session)
     await db_session.close()
     return result
@@ -76,6 +82,8 @@ async def list_product_stock_api(
     ),
     db_session: AsyncSession = Depends(get_session),
 ):
+    if min_stock > max_stock:
+        raise ParametersError(detail="Min stock shouldn't bigger than max stock")
     result = await list_product_by_stock(min_stock, max_stock, db_session)
     await db_session.close()
     return result
@@ -98,8 +106,12 @@ async def create_product_api(
     user = await permit_current_user(token, db_session)
     if user.role != UserRole.MANAGER:
         raise NotAuthToOps()
-    await get_user_by_id(product.creator_id, db_session)
-    result = await create_product(product, db_session)
+    # validate pro
+    db_product= await get_product_by_name(product.name, db_session)
+    if db_product:
+        raise ProductExists()
+    product_to_db = ProductToDb(**product.model_dump(), creator_id=user.user_id)
+    result = await create_product(product_to_db, db_session)
     await db_session.close()
     return result
 
@@ -122,7 +134,8 @@ async def modify_product_api(
     user = await permit_current_user(token, db_session)
     if user.role != UserRole.MANAGER:
         raise NotAuthToOps()
-    result = await modify_product(product_id, product_update, db_session)
+    product_to_db = ProductToDb(**product_update.model_dump(), creator_id=user.user_id)
+    result = await modify_product(product_to_db, product_id, db_session)
     await db_session.close()
     return result
 

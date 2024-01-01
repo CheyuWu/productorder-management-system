@@ -58,12 +58,12 @@ async def check_product_id_is_used(product_id: int, db: AsyncSession):
 
 async def list_order(customer_id: int, db: AsyncSession):
     select_statement = select(Order).where(col(Order.customer_id) == customer_id)
-    return get_orders_and_order_products(select_statement, db)
+    return await get_orders_and_order_products(select_statement, db)
 
 
 async def list_all_orders(db: AsyncSession):
     select_statement = select(Order)
-    return get_orders_and_order_products(select_statement, db)
+    return await get_orders_and_order_products(select_statement, db)
 
 
 async def get_orders_and_order_products(

@@ -18,7 +18,7 @@ router = APIRouter()
     tags=["User"],
     responses=create_user_response,
     response_model=UserCreateResponse,
-    summary="Create user API",
+    summary="Create user API (testing only)",
 )
 async def create_user_api(
     user: UserCreate, db_session: AsyncSession = Depends(get_session)
@@ -38,7 +38,7 @@ async def create_user_api(
     include_in_schema=True,
     tags=["User"],
     responses=delete_user_response,
-    summary="Delete user API",
+    summary="Delete user API (testing only)",
 )
 async def delete_user_api(
     user_id: int, db_session: AsyncSession = Depends(get_session)

@@ -19,6 +19,7 @@ class User(UserBase, table=True):
 
 class Product(ProductBase, table=True):
     product_id: int = Field(default=None, primary_key=True, index=True)
+    creator_id: int = Field(foreign_key="user.user_id", nullable=False)
     creator: Optional[User] = Relationship(
         back_populates="created_products", sa_relationship_kwargs={"lazy": "selectin"}
     )

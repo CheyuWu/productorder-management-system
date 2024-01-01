@@ -30,3 +30,11 @@ class ProductNotFound(HTTPException):
         message: str | None = "Product not found",
     ) -> None:
         super().__init__(status_code, message)
+
+class ProductExists(HTTPException):
+    def __init__(
+        self,
+        status_code: int = status.HTTP_400_BAD_REQUEST,
+        message: str | None = "Product exists",
+    ) -> None:
+        super().__init__(status_code, message)

@@ -27,8 +27,6 @@ async def list_order_api(
     db_session: AsyncSession = Depends(get_session),
 ):
     user = await permit_current_user(token, db_session)
-    if user.role != UserRole.CUSTOMER:
-        raise NotAuthToOps()
     if user.role == UserRole.MANAGER:
         return await list_all_orders(db_session)
     else:
