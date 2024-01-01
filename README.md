@@ -1,5 +1,13 @@
 # productorder-management-system
 
+## How it works
+> Connect to localhost:8000/docs
+```
+$ docker compose up -d
+```
+
+
+## Dev part
 ### Install environment - Python 3.10
 ```
 $ make install

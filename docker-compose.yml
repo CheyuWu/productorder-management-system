@@ -1,0 +1,36 @@
+version: '3'
+services:
+  db_postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: app
+    ports:
+      - 5432:5432
+    volumes:
+      - db-postgres:/var/lib/postgresql/data
+
+  server:
+    container_name: server
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "2048m"
+        max-file: "3"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dev:password@db_postgres:5432/app
+    depends_on:
+      - db_postgres
+
+volumes:
+  db-postgres:
+    driver: local

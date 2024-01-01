@@ -1,6 +1,6 @@
 
 
-.PHONY: install dev env db
+.PHONY: install dev env db build
 
 
 # For development
@@ -14,3 +14,8 @@ db:
 	-e POSTGRES_PASSWORD=password \
 	-p 5432:5432 -d postgres
 
+build:
+	docker build --tag server:latest . -f Dockerfile
+
+prod:
+	docker compose up -d
