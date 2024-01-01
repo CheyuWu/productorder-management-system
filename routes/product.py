@@ -9,6 +9,7 @@ from modules.product import (
     list_product_by_stock,
     modify_product,
 )
+from modules.user import get_user
 from schemas.products import (
     ProductCreate,
     ProductCreateResponse,
@@ -87,6 +88,7 @@ async def list_product_stock_api(
 async def create_product_api(
     product: ProductCreate, db_session: AsyncSession = Depends(get_session)
 ):
+    await get_user(product.creator_id, db_session)
     result = await create_product(product, db_session)
     await db_session.close()
     return result

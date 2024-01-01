@@ -1,9 +1,11 @@
 from fastapi import APIRouter, status, Depends
 from db.database import get_session
+from exception.db_exception import UserExists
 from modules.user import create_user, delete_user
 from response.user_response import create_user_response, delete_user_response
-from schemas.users import UserBase, UserCreate, UserCreateResponse, UserDelete
+from schemas.users import UserCreate, UserCreateResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 router = APIRouter()
 
@@ -20,10 +22,12 @@ router = APIRouter()
 async def create_user_api(
     user: UserCreate, db_session: AsyncSession = Depends(get_session)
 ):
-    result = await create_user(user, db_session)
-    await db_session.close()
-    return result
-
+    try:
+        result = await create_user(user, db_session)
+        await db_session.close()
+        return result
+    except IntegrityError:
+        raise UserExists()
 
 @router.delete(
     "/user/{user_id}",

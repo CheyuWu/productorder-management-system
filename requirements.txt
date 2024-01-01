@@ -7,4 +7,5 @@ passlib
 alembic
 asyncpg
 sqlmodel
+python-jose[cryptography]
 pydantic-settings
