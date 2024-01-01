@@ -2,3 +2,11 @@ fastapi
 uvicorn[standard]
 pylint
 pytest
+sqlalchemy
+passlib
+alembic
+asyncpg
+sqlmodel
+python-jose[cryptography]
+pydantic-settings
+python-multipart
