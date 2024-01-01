@@ -1,7 +1,9 @@
-from typing import List
-from fastapi import APIRouter, Query, status, Depends
+from typing import Annotated, List
+from fastapi import APIRouter, Body, Header, Query, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_session
+from exception.login_exception import NotAuthCurrentUser, NotAuthToOps
+from modules.login import permit_current_user
 from modules.product import (
     create_product,
     delete_product,
@@ -22,6 +24,7 @@ from response.product_response import (
     modify_product_response,
     get_product_response,
 )
+from schemas.users import UserLogin, UserRole
 
 router = APIRouter()
 
@@ -86,8 +89,13 @@ async def list_product_stock_api(
     summary="Create product API",
 )
 async def create_product_api(
-    product: ProductCreate, db_session: AsyncSession = Depends(get_session)
+    product: ProductCreate = Body(),
+    token: str = Header(description="Your bearer token"),
+    db_session: AsyncSession = Depends(get_session),
 ):
+    user = await permit_current_user(token, db_session)
+    if user.role != UserRole.MANAGER:
+        raise NotAuthToOps()
     await get_user_by_id(product.creator_id, db_session)
     result = await create_product(product, db_session)
     await db_session.close()
@@ -106,8 +114,12 @@ async def create_product_api(
 async def modify_product_api(
     product_id: int,
     product_update: ProductUpdate,
+    token: str = Header(description="Your bearer token"),
     db_session: AsyncSession = Depends(get_session),
 ):
+    user = await permit_current_user(token, db_session)
+    if user.role != UserRole.MANAGER:
+        raise NotAuthToOps()
     result = await modify_product(product_id, product_update, db_session)
     await db_session.close()
     return result

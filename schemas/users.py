@@ -17,3 +17,6 @@ class UserCreateResponse(UserBase):
 
 class UserDelete(SQLModel):
     username: str
+
+class UserLogin(UserBase):
+    pass

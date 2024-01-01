@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import Depends, status
+from fastapi import Depends
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,7 +36,8 @@ async def authenticate_user(username: str, password: str, db: AsyncSession):
 
 
 async def permit_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)], db: AsyncSession
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: AsyncSession,
 ):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

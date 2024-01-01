@@ -36,4 +36,5 @@ async def login(
     access_token = create_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
+    await db_session.close()
     return loginResp(access_token=access_token, token_type="bearer")

@@ -6,8 +6,6 @@ from exception.db_exception import DatabaseUrlNotFound
 DATABASE_URL = get_settings().DATABASE_URL
 DEBUG = get_settings().DEBUG
 
-print(DATABASE_URL)
-
 if not DATABASE_URL:
     raise DatabaseUrlNotFound
 
