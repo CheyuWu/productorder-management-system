@@ -1,7 +1,5 @@
 
-
 .PHONY: install dev env db build
-
 
 # For development
 install:
