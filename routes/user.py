@@ -33,7 +33,7 @@ async def create_user_api(
 
 
 @router.delete(
-    "/v1//user/{user_id}",
+    "/v1/user/{user_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     include_in_schema=True,
     tags=["User"],
