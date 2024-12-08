@@ -1,11 +1,10 @@
-from typing import Annotated, List
+from typing import List
 from fastapi import APIRouter, Body, Header, Query, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_session
-from db.models import Product
 from exception.api_exception import DeleteIsNotAllowed, ParametersError
 from exception.db_exception import ProductExists
-from exception.login_exception import NotAuthCurrentUser, NotAuthToOps
+from exception.login_exception import NotAuthToOps
 from modules.login import permit_current_user
 from modules.order import check_product_id_is_used
 from modules.product import (
@@ -16,7 +15,6 @@ from modules.product import (
     list_product_by_stock,
     modify_product,
 )
-from modules.user import get_user_by_id
 from schemas.products import (
     ProductCreate,
     ProductCreateResponse,
@@ -30,13 +28,13 @@ from response.product_response import (
     modify_product_response,
     get_product_response,
 )
-from schemas.users import UserLogin, UserRole
+from schemas.users import UserRole
 
 router = APIRouter()
 
 
 @router.get(
-    "/product/price",
+    "/v1/product/price",
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Product"],
@@ -63,7 +61,7 @@ async def list_product_price_api(
 
 
 @router.get(
-    "/product/stock",
+    "/v1/product/stock",
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Product"],
@@ -90,7 +88,7 @@ async def list_product_stock_api(
 
 
 @router.post(
-    "/product",
+    "/v1/product",
     status_code=status.HTTP_201_CREATED,
     include_in_schema=True,
     tags=["Product"],
@@ -117,7 +115,7 @@ async def create_product_api(
 
 
 @router.put(
-    "/product/{product_id}",
+    "/v1/product/{product_id}",
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Product"],
@@ -141,7 +139,7 @@ async def modify_product_api(
 
 
 @router.delete(
-    "/product/{product_id}",
+    "/v1/product/{product_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     include_in_schema=True,
     tags=["Product"],

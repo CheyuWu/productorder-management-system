@@ -17,7 +17,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = get_settings().ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 @router.post(
-    "/login",
+    "/v1/login",
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Login"],

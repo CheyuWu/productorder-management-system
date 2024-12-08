@@ -14,7 +14,7 @@ router = APIRouter()
 
 
 @router.get(
-    "/order/",
+    "/v1/order/",
     status_code=status.HTTP_200_OK,
     include_in_schema=True,
     tags=["Order"],
@@ -34,7 +34,7 @@ async def list_order_api(
 
 
 @router.post(
-    "/order/",
+    "/v1/order/",
     status_code=status.HTTP_201_CREATED,
     include_in_schema=True,
     tags=["Order"],
